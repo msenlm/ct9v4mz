@@ -31,6 +31,7 @@
               900: '#000000', // Black
               700: '#333333', // Very Dark
               600: '#333333', // Very Dark
+              500: '#757575', // Extra Dark (also used unofficially for logos)
               400: '#BBBBBB', // Dark
               300: '#D4D4D4', // Medium
               200: '#EEEEEE', // Light
@@ -109,7 +110,7 @@
       transition: border-color .15s ease, box-shadow .15s ease;
     }
     textarea.gui-field { height: auto; min-height: 190px; resize: vertical; }
-    .gui-field::placeholder { color: #333333; transition: color .1s ease; }
+    .gui-field::placeholder { color: #757575; transition: color .1s ease; }
     /* Hint text disappears as soon as the field is focused/clicked, returns on blur if still empty */
     .gui-field:focus::placeholder { color: transparent; }
     .gui-field:focus { border-color: #0033ff; box-shadow: 0 0 0 3px rgba(0,51,255,0.12); }
@@ -119,7 +120,7 @@
       background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23333333' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
       background-repeat: no-repeat; background-position: right 14px center; padding-right: 38px; cursor: pointer;
     }
-    select.gui-field:invalid { color: #333333; }
+    select.gui-field:invalid { color: #757575; }
 
     /* Square checkbox — marketing palette, overrides the forms-plugin rounded native control */
     .gui-check {
@@ -141,7 +142,7 @@
     .gui-check:checked { background-color: #0033ff; border-color: #0033ff; }
     .gui-check:checked::before { transform: scale(1); }
     .gui-check:focus-visible { box-shadow: 0 0 0 3px rgba(0,51,255,0.12); }
-    .gui-hint { color: #333333; }
+    .gui-hint { color: #757575; }
 
     /* Form fields in dark mode — match the marketing dark theme (page #000, borders #333, text #e5e5e5) */
     html.dark .gui-field { background-color: #1a1a1a; border-color: #333333; color: #e5e5e5; }
