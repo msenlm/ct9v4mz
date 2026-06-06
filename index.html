@@ -208,24 +208,6 @@
 
     html { scroll-behavior: smooth; }
 
-    @keyframes laser-rainbow {
-      0%   { border-color: hsl(0,   100%, 55%); }
-      25%  { border-color: hsl(90,  100%, 45%); }
-      50%  { border-color: hsl(180, 100%, 45%); }
-      75%  { border-color: hsl(270, 100%, 60%); }
-      100% { border-color: hsl(360, 100%, 55%); }
-    }
-    @keyframes laser-neon {
-      0%, 100% { border-color: var(--neon-color, #FF3300); }
-      50%       { border-color: var(--neon-color, #FF3300); }
-    }
-    @keyframes neon-pulse       { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
-    @keyframes neon-pulse-outer { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
-    .ng        { position: absolute; pointer-events: none; z-index: 998; background: var(--neon-color, #FF3300) !important; mix-blend-mode: screen; animation: neon-pulse 2s ease-in-out infinite; }
-    .ng.inner  { filter: blur(2px); }
-    .ng.outer  { filter: blur(8px); animation-name: neon-pulse-outer; }
-    .ng-h      { height: 1px; left: 0; right: 0; }
-    .ng-v      { width:  1px; top:  0; bottom: 0; }
     /* Section reveal experiment — scoped under html.reveal-mode, zero default impact */
     html.reveal-mode .lm-reveal > * > * {
       opacity: 0;
@@ -263,39 +245,6 @@
     @media (prefers-reduced-motion: reduce) {
       html.img-fade-mode main img { transition: none !important; opacity: 1 !important; }
     }
-    /* Section wipe — scoped under html.wipe-mode */
-    html.wipe-mode #hero-wrap { position: sticky; top: 0; z-index: 0; }
-    html.wipe-mode main > section {
-      position: sticky;
-      top: 0;
-    }
-    html.wipe-mode main > section:not([class*="bg-"]) { background-color: #fff; }
-    html.dark.wipe-mode main > section:not([class*="bg-"]) { background-color: #000; }
-    html.wipe-mode main > section:nth-child(2) { z-index: 1; }
-    html.wipe-mode main > section:nth-child(3) { z-index: 2; }
-    html.wipe-mode main > section:nth-child(4) { z-index: 3; }
-    html.wipe-mode main > section:nth-child(5) { z-index: 4; }
-    html.wipe-mode main > section:nth-child(6) { z-index: 5; }
-    html.wipe-mode main > section:nth-child(7) { z-index: 6; }
-    /* Color shift — temperature arc, smooth via JS-driven inline styles */
-    html.dark.color-shift-mode body,
-    html.dark.color-shift-mode header,
-    html.dark.color-shift-mode footer,
-    html.dark.color-shift-mode .bg-white,
-    html.dark.color-shift-mode .bg-gray-100,
-    html.dark.color-shift-mode .bg-gray-900,
-    html.dark.color-shift-mode #hero-wrap {
-      transition: background-color 0.25s ease !important;
-    }
-    @property --ep  { syntax: '<percentage>'; initial-value: -5%; inherits: false; }
-    @property --epv { syntax: '<percentage>'; initial-value: -5%; inherits: false; }
-    @keyframes laser-electron-h { from { --ep:  -5%; } to { --ep:  105%; } }
-    @keyframes laser-electron-v { from { --epv: -5%; } to { --epv: 105%; } }
-    html.laser-1 :is([class~="border"],[class~="border-t"],[class~="border-b"],[class~="border-l"],[class~="border-r"],[class~="border-2"],[class~="border-t-2"],[class~="border-b-2"]), html.laser-1 hr, html.laser-1 main > *, html.laser-1 header, html.laser-1 footer { animation: laser-neon 2s ease-in-out infinite !important; }
-    html.laser-2 :is([class~="border"],[class~="border-t"],[class~="border-b"],[class~="border-l"],[class~="border-r"],[class~="border-2"],[class~="border-t-2"],[class~="border-b-2"]), html.laser-2 hr, html.laser-2 main > *, html.laser-2 header, html.laser-2 footer { animation: laser-rainbow 15s linear infinite !important; }
-    .ep   { position: absolute; pointer-events: none; z-index: 999; }
-    .ep-h { height: 1px; left: 0; right: 0; animation: laser-electron-h 6s linear infinite; background: linear-gradient(90deg,  transparent calc(var(--ep)  - 2px), rgba(255,255,255,0.9) var(--ep),  transparent calc(var(--ep)  + 2px)); }
-    .ep-v { width:  1px; top:  0; bottom: 0; animation: laser-electron-v 6s linear infinite; background: linear-gradient(180deg, transparent calc(var(--epv) - 2px), rgba(255,255,255,0.9) var(--epv), transparent calc(var(--epv) + 2px)); }
     [x-cloak] { display: none !important; }
 
     /* Dark mode overrides — html.dark specificity (0,2,0) beats Tailwind (0,1,0) */
@@ -891,48 +840,6 @@
       });
     }
 
-    let numbersObserver = null;
-    function countUp(el) {
-      const target   = parseFloat(el.dataset.target);
-      const from     = parseFloat(el.dataset.start ?? 0);
-      const decimals = (el.dataset.target.split('.')[1] || '').length;
-      const duration = 1500;
-      const t0 = performance.now();
-      el._counting = true;
-      (function tick(now) {
-        const p = Math.min((now - t0) / duration, 1);
-        const eased = 1 - Math.pow(1 - p, 3);
-        el.textContent = (from + (target - from) * eased).toFixed(decimals);
-        if (p < 1) requestAnimationFrame(tick);
-        else { el.textContent = target.toFixed(decimals); el._counting = false; }
-      })(t0);
-    }
-    function toggleNumbers(btn) {
-      const html = document.documentElement;
-      const active = !html.classList.contains('numbers-mode');
-      btn.querySelector('span:first-child').textContent = active ? '◉' : '↑';
-      btn.style.background = active ? '#2a2a2a' : '';
-      btn.style.color      = active ? '#fff'    : '#aaa';
-      html.classList.toggle('numbers-mode', active);
-      const els = document.querySelectorAll('.stat-number');
-      if (active) {
-        els.forEach(el => {
-          if (!el.dataset.target) el.dataset.target = el.textContent.trim();
-          el.textContent = el.dataset.start ?? '0';
-        });
-        numbersObserver = new IntersectionObserver(entries => {
-          entries.forEach(e => {
-            if (e.isIntersecting) countUp(e.target);
-            else { e.target.textContent = e.target.dataset.start ?? '0'; }
-          });
-        }, { threshold: 0.5 });
-        els.forEach(el => numbersObserver.observe(el));
-      } else {
-        if (numbersObserver) { numbersObserver.disconnect(); numbersObserver = null; }
-        els.forEach(el => { if (el.dataset.target) el.textContent = el.dataset.target; });
-      }
-    }
-
     let revealObserver = null;
     function toggleReveal(btn) {
       const html = document.documentElement;
@@ -1033,155 +940,6 @@
       btn.querySelector('span:last-child').textContent  = isDark ? 'Light' : 'Dark';
     }
 
-    let laserState = 0;
-    let electronDensity = 1;
-    let neonColor = '#FF3300';
-    const laserDurations = [0, 2, 15, 6];
-    const LASER_SEL = ':is([class~="border"],[class~="border-t"],[class~="border-b"],[class~="border-l"],[class~="border-r"],[class~="border-2"],[class~="border-t-2"],[class~="border-b-2"]),hr,main > *,header,footer';
-
-    function clearLaser() {
-      document.querySelectorAll('[data-ld]').forEach(el => {
-        el.style.animationDelay = '';
-        el.removeAttribute('data-ld');
-      });
-      document.querySelectorAll('.ep, .ng').forEach(el => el.remove());
-      document.querySelectorAll('[data-laser-pos]').forEach(el => {
-        el.style.position = '';
-        el.removeAttribute('data-laser-pos');
-      });
-    }
-
-    function addNeonGlow() {
-      document.querySelectorAll(LASER_SEL).forEach(el => {
-        const cs = getComputedStyle(el);
-        const sides = [
-          ['top',    parseFloat(cs.borderTopWidth),    'ng-h'],
-          ['bottom', parseFloat(cs.borderBottomWidth), 'ng-h'],
-          ['left',   parseFloat(cs.borderLeftWidth),   'ng-v'],
-          ['right',  parseFloat(cs.borderRightWidth),  'ng-v'],
-        ].filter(([, w]) => w > 0);
-        if (!sides.length) return;
-        if (cs.position === 'static') {
-          el.style.position = 'relative';
-          el.setAttribute('data-laser-pos', '1');
-        }
-        sides.forEach(([side, w, cls]) => {
-          const delay = `-${(Math.random() * 2).toFixed(2)}s`;
-          const tf = side === 'top'    ? `translateY(-${w}px)` :
-                     side === 'bottom' ? `translateY(${w}px)`  :
-                     side === 'left'   ? `translateX(-${w}px)` :
-                                         `translateX(${w}px)`;
-          ['inner', 'outer'].forEach(layer => {
-            const g = document.createElement('div');
-            g.className = `ng ${layer} ${cls}`;
-            g.style[side] = '0';
-            g.style.transform = tf;
-            g.style.animationDelay = delay;
-            el.appendChild(g);
-          });
-        });
-      });
-    }
-
-    function setNeonColor(c) {
-      neonColor = c;
-      document.documentElement.style.setProperty('--neon-color', c);
-      if (laserState !== 1) setLaser(1); else updateSubButtons();
-    }
-
-    function addElectronParticles() {
-      const dur = 6;
-      const all = [...document.querySelectorAll(LASER_SEL)];
-      const count = Math.round(all.length * electronDensity);
-      const els = electronDensity >= 1 ? all
-        : all.filter((_, i) => i % Math.round(1 / electronDensity) === 0).slice(0, count);
-      els.forEach(el => {
-        const cs = getComputedStyle(el);
-        const sides = [
-          ['top',    parseFloat(cs.borderTopWidth),    'ep-h'],
-          ['bottom', parseFloat(cs.borderBottomWidth), 'ep-h'],
-          ['left',   parseFloat(cs.borderLeftWidth),   'ep-v'],
-          ['right',  parseFloat(cs.borderRightWidth),  'ep-v'],
-        ].filter(([, w]) => w > 0);
-        if (!sides.length) return;
-        if (cs.position === 'static') {
-          el.style.position = 'relative';
-          el.setAttribute('data-laser-pos', '1');
-        }
-        sides.forEach(([side, w, cls]) => {
-          const p = document.createElement('div');
-          p.className = `ep ${cls}`;
-          p.style[side] = '0';
-          p.style[cls === 'ep-h' ? 'height' : 'width'] = '1px';
-          p.style.transform = side === 'top'    ? `translateY(-${w}px)` :
-                              side === 'bottom' ? `translateY(${w}px)`  :
-                              side === 'left'   ? `translateX(-${w}px)` :
-                                                  `translateX(${w}px)`;
-          p.style.animationDelay = `-${(Math.random() * dur).toFixed(2)}s`;
-          el.appendChild(p);
-        });
-      });
-    }
-
-    function updateSubButtons() {
-      document.querySelectorAll('.ep-density-btn').forEach(b => {
-        const active = laserState === 3 && parseFloat(b.dataset.d) === electronDensity;
-        b.style.background = active ? '#2a2a2a' : '';
-        b.style.color      = active ? '#fff'    : '#aaa';
-      });
-      document.querySelectorAll('.neon-color-btn').forEach(b => {
-        const active = laserState === 1 && b.dataset.nc === neonColor;
-        b.style.background = active ? '#2a2a2a' : '';
-        b.style.color      = active ? '#fff'    : '#aaa';
-      });
-    }
-
-    function setElectronDensity(d) {
-      electronDensity = d;
-      if (laserState !== 3) setLaser(3); else { clearLaser(); requestAnimationFrame(addElectronParticles); }
-      updateSubButtons();
-    }
-
-    function updateLaserButtons() {
-      document.querySelectorAll('.laser-btn').forEach(b => {
-        const active = parseInt(b.dataset.mode) === laserState;
-        b.style.background = active ? '#2a2a2a' : '';
-        b.style.color      = active ? '#fff'    : '#aaa';
-        b.dataset.active   = active ? '1' : '';
-      });
-      updateSubButtons();
-    }
-
-    function setLaser(mode) {
-      const html = document.documentElement;
-      html.classList.remove('laser-1', 'laser-2', 'laser-3');
-      clearLaser();
-      laserState = (laserState === mode) ? 0 : mode;
-      updateLaserButtons();
-      if (laserState > 0) {
-        if (!html.classList.contains('dark')) {
-          html.classList.add('dark');
-          const darkBtn = document.getElementById('exp-dark-toggle');
-          if (darkBtn) {
-            darkBtn.querySelector('span:first-child').textContent = '○';
-            darkBtn.querySelector('span:last-child').textContent  = 'Light';
-          }
-        }
-        if (laserState === 3) {
-          html.classList.add('laser-3');
-          requestAnimationFrame(addElectronParticles);
-        } else {
-          const dur = laserDurations[laserState];
-          document.querySelectorAll(LASER_SEL).forEach(el => {
-            el.style.animationDelay = `-${(Math.random() * dur).toFixed(2)}s`;
-            el.setAttribute('data-ld', '1');
-          });
-          html.classList.add('laser-' + laserState);
-          if (laserState === 1) requestAnimationFrame(addNeonGlow);
-        }
-      }
-    }
-
     function replayAnimations() {
       document.querySelectorAll('.animate-type').forEach(el => {
         if (el.dataset.originalHtml) el.innerHTML = el.dataset.originalHtml;
@@ -1189,133 +947,6 @@
         el.dataset.animated = '1';
         runTypeAnimation(el);
       });
-    }
-
-    let wipeScrollHandler = null;
-
-    function applyWipeMargins() {
-      const vh = window.innerHeight;
-      const sections = [...document.querySelectorAll('#hero-wrap, main > section')];
-
-      // Measure all sections before touching the DOM
-      const info = sections.map(s => ({
-        section: s,
-        h: s.scrollHeight,
-        top: s.getBoundingClientRect().top + window.scrollY
-      }));
-
-      info.forEach(({ section, h, top }) => {
-        section.dataset.wipeH = h;
-        section.dataset.wipeTop = top;
-
-        if (h > vh) {
-          // Wrap children so we can translate them without moving the sticky section
-          const inner = document.createElement('div');
-          inner.className = 'wipe-inner';
-          inner.style.willChange = 'transform';
-          [...section.children].forEach(child => inner.appendChild(child));
-          section.appendChild(inner);
-          section.style.setProperty('height', vh + 'px', 'important');
-          section.style.overflow = 'hidden';
-          section.style.marginBottom = (h - vh) + 'px';
-        }
-      });
-
-      wipeScrollHandler = () => {
-        info.forEach(({ section, h, top }) => {
-          if (h <= vh) return;
-          const extra = h - vh;
-          const progress = Math.max(0, Math.min(extra, window.scrollY - top));
-          const inner = section.querySelector('.wipe-inner');
-          if (inner) inner.style.transform = `translateY(-${progress}px)`;
-        });
-      };
-      window.addEventListener('scroll', wipeScrollHandler, { passive: true });
-      wipeScrollHandler();
-    }
-
-    function clearWipeMargins() {
-      if (wipeScrollHandler) {
-        window.removeEventListener('scroll', wipeScrollHandler);
-        wipeScrollHandler = null;
-      }
-      document.querySelectorAll('#hero-wrap, main > section').forEach(s => {
-        const inner = s.querySelector('.wipe-inner');
-        if (inner) {
-          [...inner.children].forEach(child => s.insertBefore(child, inner));
-          inner.remove();
-        }
-        s.style.removeProperty('height');
-        s.style.overflow = '';
-        s.style.marginBottom = '';
-        delete s.dataset.wipeH;
-        delete s.dataset.wipeTop;
-      });
-    }
-
-    function toggleWipe(btn) {
-      const html = document.documentElement;
-      const active = !html.classList.contains('wipe-mode');
-      btn.querySelector('span:first-child').textContent = active ? '◉' : '↕';
-      btn.style.background = active ? '#2a2a2a' : '';
-      btn.style.color      = active ? '#fff'    : '#aaa';
-      html.classList.toggle('wipe-mode', active);
-      if (active) applyWipeMargins(); else clearWipeMargins();
-    }
-
-    // neutral → warm amber → deep indigo → neutral, starting when Engineered is in view
-    const CS_TARGETS = 'body, header, footer, .bg-white, .bg-gray-100, .bg-gray-900, #hero-wrap';
-    const CS_STOPS = [
-      [0,    [0,  0,  0]],
-      [0.30, [28, 17,  2]],
-      [0.65, [10,  5, 26]],
-      [0.88, [2,   1,  3]],
-      [1.0,  [0,  0,  0]],
-    ];
-    function csLerp(p) {
-      for (let i = 1; i < CS_STOPS.length; i++) {
-        const [p0, c0] = CS_STOPS[i-1], [p1, c1] = CS_STOPS[i];
-        if (p <= p1) {
-          const t = p1 === p0 ? 0 : (p - p0) / (p1 - p0);
-          return `rgb(${Math.round(c0[0]+(c1[0]-c0[0])*t)},${Math.round(c0[1]+(c1[1]-c0[1])*t)},${Math.round(c0[2]+(c1[2]-c0[2])*t)})`;
-        }
-      }
-      return 'rgb(0,0,0)';
-    }
-    let colorShiftWasDark = false, colorShiftHandler = null;
-    function toggleColorShift(btn) {
-      const html = document.documentElement;
-      const active = !html.classList.contains('color-shift-mode');
-      btn.querySelector('span:first-child').textContent = active ? '◉' : '◐';
-      btn.style.background = active ? '#2a2a2a' : '';
-      btn.style.color      = active ? '#fff'    : '#aaa';
-      const darkBtn = document.getElementById('exp-dark-toggle');
-      if (active) {
-        colorShiftWasDark = html.classList.contains('dark');
-        html.classList.add('dark');
-        if (darkBtn) { darkBtn.querySelector('span:first-child').textContent = '○'; darkBtn.querySelector('span:last-child').textContent = 'Light'; }
-        html.classList.add('color-shift-mode');
-        const engineered = document.querySelector('section.bg-gray-900');
-        const startY = engineered
-          ? engineered.getBoundingClientRect().top + window.scrollY - window.innerHeight
-          : 0;
-        colorShiftHandler = () => {
-          const max = document.documentElement.scrollHeight - window.innerHeight;
-          const p = max > startY ? Math.max(0, Math.min(1, (window.scrollY - startY) / (max - startY))) : 0;
-          const color = csLerp(p);
-          document.querySelectorAll(CS_TARGETS).forEach(el => el.style.setProperty('background-color', color, 'important'));
-        };
-        window.addEventListener('scroll', colorShiftHandler, { passive: true });
-        colorShiftHandler();
-      } else {
-        html.classList.remove('color-shift-mode');
-        if (colorShiftHandler) { window.removeEventListener('scroll', colorShiftHandler); colorShiftHandler = null; }
-        document.querySelectorAll(CS_TARGETS).forEach(el => el.style.removeProperty('background-color'));
-        if (!colorShiftWasDark) {
-          html.classList.remove('dark');
-          if (darkBtn) { darkBtn.querySelector('span:first-child').textContent = '◑'; darkBtn.querySelector('span:last-child').textContent = 'Dark'; }
-        }
-      }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
@@ -1333,12 +964,9 @@
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-      const btn = document.querySelector('[onclick="toggleImageFade(this)"]');
-      if (btn) toggleImageFade(btn);
-      const numBtn = document.querySelector('[onclick="toggleNumbers(this)"]');
-      if (numBtn) toggleNumbers(numBtn);
-      const revealBtn = document.querySelector('[onclick="toggleElementReveal(this)"]');
-      if (revealBtn) toggleElementReveal(revealBtn);
+      // Section reveal is on by default; every other experiment starts off
+      const revealBtn = document.querySelector('[onclick="toggleReveal(this)"]');
+      if (revealBtn) toggleReveal(revealBtn);
     });
   </script>
 
@@ -1352,15 +980,6 @@
       <div class="p-2 flex flex-col gap-1">
 
         <p class="px-3 pt-1 pb-0.5 text-[10px] font-medium tracking-[0.12em] uppercase" style="color:#444">Animations</p>
-
-        <button onclick="toggleNumbers(this)"
-                class="w-full text-left text-sm px-3 py-2 rounded-lg transition-colors flex items-center gap-2"
-                style="color:#aaa"
-                onmouseover="this.style.background='#333';this.style.color='#fff'"
-                onmouseout="this.style.background='';this.style.color='#aaa'">
-          <span style="font-size:14px;line-height:1">↑</span>
-          <span>Numbers</span>
-        </button>
 
         <button onclick="replayAnimations()"
                 class="w-full text-left text-sm px-3 py-2 rounded-lg transition-colors flex items-center gap-2"
@@ -1398,24 +1017,6 @@
           <span>Image fade</span>
         </button>
 
-        <button onclick="toggleWipe(this)"
-                class="w-full text-left text-sm px-3 py-2 rounded-lg transition-colors flex items-center gap-2"
-                style="color:#aaa"
-                onmouseover="this.style.background='#333';this.style.color='#fff'"
-                onmouseout="this.style.background='';this.style.color='#aaa'">
-          <span style="font-size:14px;line-height:1">↕</span>
-          <span>Section wipe</span>
-        </button>
-
-        <button onclick="toggleColorShift(this)"
-                class="w-full text-left text-sm px-3 py-2 rounded-lg transition-colors flex items-center gap-2"
-                style="color:#aaa"
-                onmouseover="this.style.background='#333';this.style.color='#fff'"
-                onmouseout="this.style.background='';this.style.color='#aaa'">
-          <span style="font-size:14px;line-height:1">◐</span>
-          <span>Color shift</span>
-        </button>
-
         <div style="height:1px;background:#222;margin:4px 0"></div>
 
         <p class="px-3 pt-1 pb-0.5 text-[10px] font-medium tracking-[0.12em] uppercase" style="color:#444">Modes</p>
@@ -1428,45 +1029,6 @@
           <span style="font-size:14px;line-height:1">◑</span>
           <span>Dark</span>
         </button>
-
-        <div class="flex items-center gap-1">
-          <button onclick="setLaser(1)" data-mode="1"
-                  class="laser-btn flex-1 text-left text-sm px-3 py-2 rounded-lg transition-colors flex items-center gap-2"
-                  style="color:#aaa"
-                  onmouseover="if(!this.dataset.active)this.style.background='#1e1e1e';this.style.color='#fff'"
-                  onmouseout="if(!this.dataset.active){this.style.background='';this.style.color='#aaa'}">
-            <span style="font-size:14px;line-height:1">◈</span>
-            <span>Neon</span>
-          </button>
-          <button onclick="setNeonColor('#FF3300')" data-nc="#FF3300" class="neon-color-btn text-xs px-2 py-2 rounded-lg" style="color:#aaa">1</button>
-          <button onclick="setNeonColor('#ffffff')" data-nc="#ffffff" class="neon-color-btn text-xs px-2 py-2 rounded-lg" style="color:#aaa">2</button>
-          <button onclick="setNeonColor('#00e5ff')" data-nc="#00e5ff" class="neon-color-btn text-xs px-2 py-2 rounded-lg" style="color:#aaa">3</button>
-          <button onclick="setNeonColor('#ff44cc')" data-nc="#ff44cc" class="neon-color-btn text-xs px-2 py-2 rounded-lg" style="color:#aaa">4</button>
-        </div>
-
-        <button onclick="setLaser(2)" data-mode="2"
-                class="laser-btn w-full text-left text-sm px-3 py-2 rounded-lg transition-colors flex items-center gap-2"
-                style="color:#aaa"
-                onmouseover="if(!this.dataset.active)this.style.background='#1e1e1e';this.style.color='#fff'"
-                onmouseout="if(!this.dataset.active){this.style.background='';this.style.color='#aaa'}">
-          <span style="font-size:14px;line-height:1">◈</span>
-          <span>Rainbow</span>
-        </button>
-
-        <div class="flex items-center gap-1">
-          <button onclick="setLaser(3)" data-mode="3"
-                  class="laser-btn flex-1 text-left text-sm px-3 py-2 rounded-lg transition-colors flex items-center gap-2"
-                  style="color:#aaa"
-                  onmouseover="if(!this.dataset.active)this.style.background='#1e1e1e';this.style.color='#fff'"
-                  onmouseout="if(!this.dataset.active){this.style.background='';this.style.color='#aaa'}">
-            <span style="font-size:14px;line-height:1">◈</span>
-            <span>Electron</span>
-          </button>
-          <button onclick="setElectronDensity(1)"    data-d="1"    class="ep-density-btn text-xs px-2 py-2 rounded-lg" style="color:#aaa">1</button>
-          <button onclick="setElectronDensity(0.75)" data-d="0.75" class="ep-density-btn text-xs px-2 py-2 rounded-lg" style="color:#aaa">2</button>
-          <button onclick="setElectronDensity(0.5)"  data-d="0.5"  class="ep-density-btn text-xs px-2 py-2 rounded-lg" style="color:#aaa">3</button>
-          <button onclick="setElectronDensity(0.25)" data-d="0.25" class="ep-density-btn text-xs px-2 py-2 rounded-lg" style="color:#aaa">4</button>
-        </div>
 
       </div>
     </div>
