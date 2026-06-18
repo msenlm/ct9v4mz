@@ -499,16 +499,18 @@
              x-data="{
                current: 0,
                timer: null,
+               playing: false,
                videos: [
-                 { title:'From Wafer to Rack: Examining How the Fastest AI Interconnects Are Made', desc:'Go inside the fab for a behind-the-scenes look at how the world’s fastest AI interconnects are built, tracing Passage from raw silicon wafer all the way to a finished rack.', thumb:'https://lightmatter.co/wp-content/uploads/2026/06/maxresdefault-1.jpg', url:'https://www.youtube.com/watch?v=GKh_ojvguR8' },
-                 { title:'Lightmatter InterConnect 2026 Keynote Presentation', desc:'Watch the keynote from Lightmatter InterConnect 2026 for our perspective on the future of photonic interconnects and the networks that will power large-scale AI.', thumb:'https://lightmatter.co/wp-content/uploads/2026/05/maxresdefault-1.jpg', url:'https://www.youtube.com/watch?v=8rO3dwrlSqk' },
-                 { title:'Passage M1000: Powering the Next 1000x in AI Performance', desc:'Explore the Passage M1000 Reference System, a groundbreaking platform built around the Passage M1000 3D Photonic Superchip. Discover how this revolutionary photonic interconnect technology is changing the game for artificial intelligence (AI) infrastructure.', thumb:'https://lightmatter.co/wp-content/uploads/2025/08/M1000_thumbnail-1400x788.webp', url:'https://www.youtube.com/watch?v=3nkRVcu1Zq4' },
-                 { title:'Lightmatter’s 8X Leap: World-First 16-Wavelength Bidirectional Optical Link for AI Data Centers', desc:'A world-first 16-wavelength bidirectional optical link that delivers a dramatic leap in fiber bandwidth density, a breakthrough built for the demands of the AI data center.', thumb:'https://lightmatter.co/wp-content/uploads/2025/11/8x-leap-thumb-1400x788.webp', url:'https://www.youtube.com/watch?v=Gjee92kYmwg' }
+                 { title:'From Wafer to Rack: Examining How the Fastest AI Interconnects Are Made', desc:'Go inside the fab for a behind-the-scenes look at how the world’s fastest AI interconnects are built, tracing Passage from raw silicon wafer all the way to a finished rack.', thumb:'https://lightmatter.co/wp-content/uploads/2026/06/maxresdefault-1.jpg', id:'GKh_ojvguR8' },
+                 { title:'Lightmatter InterConnect 2026 Keynote Presentation', desc:'Watch the keynote from Lightmatter InterConnect 2026 for our perspective on the future of photonic interconnects and the networks that will power large-scale AI.', thumb:'https://lightmatter.co/wp-content/uploads/2026/05/maxresdefault-1.jpg', id:'8rO3dwrlSqk' },
+                 { title:'Passage M1000: Powering the Next 1000x in AI Performance', desc:'Explore the Passage M1000 Reference System, a groundbreaking platform built around the Passage M1000 3D Photonic Superchip. Discover how this revolutionary photonic interconnect technology is changing the game for artificial intelligence (AI) infrastructure.', thumb:'https://lightmatter.co/wp-content/uploads/2025/08/M1000_thumbnail-1400x788.webp', id:'3nkRVcu1Zq4' },
+                 { title:'Lightmatter’s 8X Leap: World-First 16-Wavelength Bidirectional Optical Link for AI Data Centers', desc:'A world-first 16-wavelength bidirectional optical link that delivers a dramatic leap in fiber bandwidth density, a breakthrough built for the demands of the AI data center.', thumb:'https://lightmatter.co/wp-content/uploads/2025/11/8x-leap-thumb-1400x788.webp', id:'Gjee92kYmwg' }
                ],
-               next(){ this.current = (this.current + 1) % this.videos.length },
-               prev(){ this.current = (this.current - 1 + this.videos.length) % this.videos.length },
-               go(i){ this.current = i; this.restart() },
-               start(){ if (this.timer || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; this.timer = setInterval(() => this.next(), 6000) },
+               play(i){ this.current = i; this.playing = true; this.stop() },
+               next(){ this.playing = false; this.current = (this.current + 1) % this.videos.length },
+               prev(){ this.playing = false; this.current = (this.current - 1 + this.videos.length) % this.videos.length },
+               go(i){ this.playing = false; this.current = i; this.restart() },
+               start(){ if (this.timer || this.playing || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return; this.timer = setInterval(() => this.next(), 6000) },
                stop(){ clearInterval(this.timer); this.timer = null },
                restart(){ this.stop(); this.start() }
              }"
@@ -521,39 +523,52 @@
           <div class="flex h-full transition-transform duration-500 ease-[cubic-bezier(.4,0,.2,1)] motion-reduce:transition-none"
                :style="`transform: translateX(-${current * 100}%)`">
           <template x-for="(v, i) in videos" :key="i">
-            <a :href="v.url" target="_blank" rel="noopener"
-               class="relative shrink-0 w-full h-full group block">
-              <img :src="v.thumb" :alt="v.title"
-                   class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]">
-              <span class="absolute inset-0 flex items-center justify-center">
-                <!-- Brand "Play arrow" mark (Figma node 15:275) -->
-                <svg class="h-[110px] md:h-[150px] lg:h-[190px] w-auto text-red-500 drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)] transition-transform duration-300 group-hover:scale-110" viewBox="0 0 340 327" fill="currentColor" aria-hidden="true">
-                  <path d="M11.3325 0V11.2695H0.00219727V315.546H11.3325V326.815H33.9961V315.546H11.334V11.2695H33.9961V6.15764e-07L11.3325 0Z"/>
-                  <path d="M33.9966 22.5389H56.6602V11.2694L33.9961 11.2695L33.9966 22.5389Z"/>
-                  <path d="M339.953 157.773V169.042H328.623V180.312H305.959V169.042H328.621V157.773H339.953Z"/>
-                  <path d="M56.6606 33.8085H79.3242V22.5391L56.6602 22.5389L56.6606 33.8085Z"/>
-                  <path d="M79.3242 293.007H56.6606V304.276H79.3242V293.007Z"/>
-                  <path d="M56.6606 304.276H33.9966L33.9961 315.546H56.6602L56.6606 304.276Z"/>
-                  <path d="M79.3247 45.078H101.987V56.3474H124.65V45.0779H101.988V33.8085H79.3242L79.3247 45.078Z"/>
-                  <path d="M101.988 281.737H79.3247L79.3242 293.007H101.988V281.737Z"/>
-                  <path d="M124.65 270.467H101.987V281.737H124.65V270.467Z"/>
-                  <path d="M124.651 67.6169H147.314V56.3474H124.65L124.651 67.6169Z"/>
-                  <path d="M147.314 259.198H124.651L124.65 270.467L147.314 270.468V259.198Z"/>
-                  <path d="M147.314 67.6169H169.979V78.8864L192.641 78.8863V90.1558H169.977V78.8863L147.315 78.8864L147.314 67.6169Z"/>
-                  <path d="M169.979 259.198H147.314L147.315 247.929H169.977V236.659H192.641V247.929H169.979V259.198Z"/>
-                  <path d="M192.641 90.1558L215.305 90.156V101.425H192.641V90.1558Z"/>
-                  <path d="M215.305 236.659H192.641V225.39H215.305V236.659Z"/>
-                  <path d="M215.305 101.425H237.969V112.695H215.305V101.425Z"/>
-                  <path d="M237.969 225.39H215.305V214.12H237.969V225.39Z"/>
-                  <path d="M237.969 112.695H260.633V123.964H283.295V135.234H260.631V123.964H237.969V112.695Z"/>
-                  <path d="M260.633 214.12H237.969V202.851H260.633V214.12Z"/>
-                  <path d="M283.295 202.851H260.631V191.581H283.295V202.851Z"/>
-                  <path d="M283.295 135.234H305.959V146.503H283.295V135.234Z"/>
-                  <path d="M305.959 191.581H283.295V180.312H305.959V191.581Z"/>
-                  <path d="M305.959 146.503H328.623V157.773H305.959V146.503Z"/>
-                </svg>
-              </span>
-            </a>
+            <div class="relative shrink-0 w-full h-full bg-black">
+              <!-- Inline player — only on the current, playing slide -->
+              <template x-if="playing && current === i">
+                <iframe class="absolute inset-0 w-full h-full"
+                        :src="'https://www.youtube.com/embed/' + v.id + '?autoplay=1&rel=0&playsinline=1'"
+                        title="YouTube video player" frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+              </template>
+              <!-- Thumbnail + play button (click to play inline) -->
+              <template x-if="!(playing && current === i)">
+                <button type="button" @click="play(i)" :aria-label="'Play: ' + v.title"
+                        class="absolute inset-0 w-full h-full group block">
+                  <img :src="v.thumb" :alt="v.title"
+                       class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]">
+                  <span class="absolute inset-0 flex items-center justify-center">
+                    <!-- Brand "Play arrow" mark (Figma node 15:275) -->
+                    <svg class="h-[110px] md:h-[150px] lg:h-[190px] w-auto text-red-500 drop-shadow-[0_2px_8px_rgba(0,0,0,0.45)] transition-transform duration-300 group-hover:scale-110" viewBox="0 0 340 327" fill="currentColor" aria-hidden="true">
+                      <path d="M11.3325 0V11.2695H0.00219727V315.546H11.3325V326.815H33.9961V315.546H11.334V11.2695H33.9961V6.15764e-07L11.3325 0Z"/>
+                      <path d="M33.9966 22.5389H56.6602V11.2694L33.9961 11.2695L33.9966 22.5389Z"/>
+                      <path d="M339.953 157.773V169.042H328.623V180.312H305.959V169.042H328.621V157.773H339.953Z"/>
+                      <path d="M56.6606 33.8085H79.3242V22.5391L56.6602 22.5389L56.6606 33.8085Z"/>
+                      <path d="M79.3242 293.007H56.6606V304.276H79.3242V293.007Z"/>
+                      <path d="M56.6606 304.276H33.9966L33.9961 315.546H56.6602L56.6606 304.276Z"/>
+                      <path d="M79.3247 45.078H101.987V56.3474H124.65V45.0779H101.988V33.8085H79.3242L79.3247 45.078Z"/>
+                      <path d="M101.988 281.737H79.3247L79.3242 293.007H101.988V281.737Z"/>
+                      <path d="M124.65 270.467H101.987V281.737H124.65V270.467Z"/>
+                      <path d="M124.651 67.6169H147.314V56.3474H124.65L124.651 67.6169Z"/>
+                      <path d="M147.314 259.198H124.651L124.65 270.467L147.314 270.468V259.198Z"/>
+                      <path d="M147.314 67.6169H169.979V78.8864L192.641 78.8863V90.1558H169.977V78.8863L147.315 78.8864L147.314 67.6169Z"/>
+                      <path d="M169.979 259.198H147.314L147.315 247.929H169.977V236.659H192.641V247.929H169.979V259.198Z"/>
+                      <path d="M192.641 90.1558L215.305 90.156V101.425H192.641V90.1558Z"/>
+                      <path d="M215.305 236.659H192.641V225.39H215.305V236.659Z"/>
+                      <path d="M215.305 101.425H237.969V112.695H215.305V101.425Z"/>
+                      <path d="M237.969 225.39H215.305V214.12H237.969V225.39Z"/>
+                      <path d="M237.969 112.695H260.633V123.964H283.295V135.234H260.631V123.964H237.969V112.695Z"/>
+                      <path d="M260.633 214.12H237.969V202.851H260.633V214.12Z"/>
+                      <path d="M283.295 202.851H260.631V191.581H283.295V202.851Z"/>
+                      <path d="M283.295 135.234H305.959V146.503H283.295V135.234Z"/>
+                      <path d="M305.959 191.581H283.295V180.312H305.959V191.581Z"/>
+                      <path d="M305.959 146.503H328.623V157.773H305.959V146.503Z"/>
+                    </svg>
+                  </span>
+                </button>
+              </template>
+            </div>
           </template>
           </div>
         </div>
